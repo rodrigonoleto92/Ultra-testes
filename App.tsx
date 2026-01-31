@@ -15,10 +15,10 @@ const App: React.FC = () => {
   const [timeframe, setTimeframe] = useState<Timeframe>('M1');
   const [selectedAssetId, setSelectedAssetId] = useState<string>(isWeekend ? 'EURUSD_OTC' : 'EURUSD');
   
-  // Histórico de velas fechadas
-  const [lastCandles, setLastCandles] = useState<CandleColor[]>(['GREEN', 'RED', 'GREEN', 'GREEN', 'RED']);
-  // Cor da vela que está correndo agora no gráfico
-  const [currentRunningColor, setCurrentRunningColor] = useState<CandleColor>('GREEN');
+  // Histórico de velas simulando o feed da Polarium Broker
+  const [lastCandles, setLastCandles] = useState<CandleColor[]>(['RED', 'GREEN', 'RED', 'RED', 'GREEN']);
+  // Simulação da vela em formação (Atual)
+  const [currentRunningColor, setCurrentRunningColor] = useState<CandleColor>('RED');
   
   const [currentSignal, setCurrentSignal] = useState<SignalType>('WAITING');
   const [probability, setProbability] = useState<number>(93);
@@ -32,18 +32,26 @@ const App: React.FC = () => {
     return ASSETS.find(a => a.id === selectedAssetId) || ASSETS[0];
   }, [selectedAssetId]);
 
-  // ESTRATÉGIA VELA A VELA - Lendo a vela que vai fechar + as anteriores
+  /**
+   * ESTRATÉGIA VELA A VELA - POLARIUM SNIPER
+   * 1. Baixa (R) + Alta (G) + Baixa (R) = VENDA (S)
+   * 2. Alta (G) + Baixa (R) + Alta (G) = COMPRA (B)
+   * 3. Duas de Baixa (R, R) = VENDA (S)
+   * 4. Duas de Alta (G, G) = COMPRA (B)
+   */
   const calculateSignal = useCallback((history: CandleColor[], current: CandleColor) => {
-    const lastClosed = history[history.length - 1];
-    const prevClosed = history[history.length - 2];
+    if (history.length < 2) return 'WAITING';
+    
+    const last = history[history.length - 1]; // Vela fechada anterior
+    const prev = history[history.length - 2]; // Vela fechada antes da anterior
 
-    // 1. DUAS VELAS IGUAIS (Continuidade)
-    if (lastClosed === 'GREEN' && current === 'GREEN') return 'BUY';
-    if (lastClosed === 'RED' && current === 'RED') return 'SELL';
+    // Regras de Duas Velas (Prioridade de Fluxo/Tendência)
+    if (last === 'RED' && current === 'RED') return 'SELL';
+    if (last === 'GREEN' && current === 'GREEN') return 'BUY';
 
-    // 2. PADRÃO SANDUÍCHE (Reversão)
-    if (prevClosed === 'RED' && lastClosed === 'GREEN' && current === 'RED') return 'SELL';
-    if (prevClosed === 'GREEN' && lastClosed === 'RED' && current === 'GREEN') return 'BUY';
+    // Regras de Três Velas (Sanduíche/Reversão)
+    if (prev === 'RED' && last === 'GREEN' && current === 'RED') return 'SELL';
+    if (prev === 'GREEN' && last === 'RED' && current === 'GREEN') return 'BUY';
     
     return 'WAITING';
   }, []);
@@ -57,50 +65,46 @@ const App: React.FC = () => {
       
       setSecondsUntilNextCandle(remaining);
 
-      // Simular a cor da vela atual mudando aleatoriamente até os 15s finais
-      if (remaining > 15 && remaining % 5 === 0) {
-        setCurrentRunningColor(Math.random() > 0.5 ? 'GREEN' : 'RED');
+      // Simulação de oscilação da vela atual para demonstração visual do "feed"
+      if (remaining > 15 && remaining % 4 === 0) {
+        setCurrentRunningColor(prev => Math.random() > 0.4 ? prev : (prev === 'RED' ? 'GREEN' : 'RED'));
       }
 
-      // GATILHO DEFINITIVO: Entre 1 e 15 segundos para fechar
+      // GATILHO: Exatamente nos 15 segundos finais conforme solicitado
       if (remaining <= 15 && remaining > 0) {
         const signal = calculateSignal(lastCandles, currentRunningColor);
         setCurrentSignal(signal);
-      } else if (remaining <= 25) {
+      } else if (remaining <= 20) {
         setCurrentSignal('ANALYZING');
       } else {
         setCurrentSignal('WAITING');
       }
 
-      // FECHAMENTO DA VELA - Move a atual para o histórico
+      // Fechamento e rotação de velas
       if (remaining === timeframeSeconds) {
         setLastCandles(prev => [...prev.slice(-10), currentRunningColor]);
-        setProbability(Math.floor(Math.random() * (98 - 92 + 1) + 92));
-        // Reseta a cor da nova vela que começa
-        setCurrentRunningColor(Math.random() > 0.5 ? 'GREEN' : 'RED');
+        setProbability(Math.floor(Math.random() * (98 - 93 + 1) + 93));
+        // Próxima vela inicia baseada na probabilidade de seguir a anterior (simulando mercado real)
+        setCurrentRunningColor(Math.random() > 0.3 ? currentRunningColor : (currentRunningColor === 'RED' ? 'GREEN' : 'RED'));
       }
     }, 1000);
     return () => clearInterval(interval);
   }, [timeframe, lastCandles, currentRunningColor, calculateSignal]);
 
   return (
-    <div className="min-h-screen bg-[#06080a] text-white p-4 md:p-6 font-sans flex flex-col items-center">
-      <div className="w-full max-w-5xl">
-        <header className="flex flex-col items-center mb-6 space-y-3">
-          <div className="text-center">
-            <h1 className="text-4xl font-black uppercase tracking-tighter text-white">
-              Ultra <span className="text-[#00c076]">Teste</span>
-            </h1>
-            <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.5em] mt-1">Polarium Intelligence</p>
-          </div>
-
-          <div className="flex items-center gap-2 px-5 py-1.5 rounded-full border border-white/5 bg-white/5 backdrop-blur-md">
+    <div className="min-h-screen bg-[#06080a] text-white p-4 md:p-6 font-sans flex flex-col items-center justify-center">
+      <div className="w-full max-w-4xl">
+        <header className="flex flex-col items-center mb-6">
+          <h1 className="text-3xl font-black uppercase tracking-tighter text-white">
+            Ultra <span className="text-[#00c076]">Teste</span>
+          </h1>
+          <div className="flex items-center gap-2 mt-1 px-3 py-1 bg-white/5 rounded-full border border-white/5">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00c076] animate-pulse"></span>
-            <span className="text-[9px] font-black uppercase tracking-widest text-[#00c076]">Live Polarium Feed</span>
+            <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-[#00c076]">Polarium Broker Feed: Ativo</span>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           <div className="lg:col-span-4 h-fit">
             <Sidebar 
               marketType={marketType}
@@ -121,7 +125,6 @@ const App: React.FC = () => {
               probability={probability}
               timeframe={timeframe}
               secondsUntilNext={secondsUntilNextCandle}
-              lastCandles={lastCandles}
             />
           </div>
         </div>
