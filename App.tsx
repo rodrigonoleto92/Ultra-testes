@@ -43,11 +43,16 @@ const App: React.FC = () => {
     const prev = candles[candles.length - 2];
     const prevPrev = candles.length >= 3 ? candles[candles.length - 3] : null;
 
-    // Estratégia vela a vela
+    // Estratégia vela a vela:
+    // 1. baixa, alta, baixa = venda
     if (prevPrev === 'RED' && prev === 'GREEN' && last === 'RED') return 'SELL';
+    // 2. alta, baixa, alta = compra
     if (prevPrev === 'GREEN' && prev === 'RED' && last === 'GREEN') return 'BUY';
+    // 3. duas de baixa = venda
     if (prev === 'RED' && last === 'RED') return 'SELL';
+    // 4. duas de alta = compra
     if (prev === 'GREEN' && last === 'GREEN') return 'BUY';
+    
     return 'WAITING';
   }, []);
 
@@ -59,15 +64,20 @@ const App: React.FC = () => {
       const remaining = timeframeSeconds - (currentSeconds % timeframeSeconds);
       setSecondsUntilNextCandle(remaining);
 
-      // Sinal aparece faltando 15 segundos
+      // Lógica de visibilidade:
+      // 30s até 15s restantes: Lendo o ativo (ANALYZING)
+      // 15s até 0s restantes: Sinal (BUY/SELL)
+      // Outros: Aguardando (WAITING)
       if (remaining <= 15) {
         const signal = calculateSignal(lastCandles);
         setCurrentSignal(signal);
+      } else if (remaining <= 30) {
+        setCurrentSignal('ANALYZING');
       } else {
         setCurrentSignal('WAITING');
       }
 
-      // Nova vela
+      // Lógica de fechamento de vela (simulada para manter o app vivo)
       if (remaining === timeframeSeconds) {
         const nextColor: CandleColor = Math.random() > 0.45 ? 'GREEN' : 'RED';
         setLastCandles(prev => [...prev.slice(-4), nextColor]);
@@ -78,49 +88,50 @@ const App: React.FC = () => {
   }, [timeframe, lastCandles, calculateSignal]);
 
   return (
-    <div className="min-h-screen bg-[#080a0c] text-white p-4 md:p-8 font-sans">
-      {/* Top Header Section */}
-      <div className="flex flex-col items-center mb-10 space-y-4">
-        <div className="text-center">
-          <h1 className="text-4xl font-black uppercase tracking-tighter text-white drop-shadow-md">Ultra Teste</h1>
-          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.4em] mt-1">sinais limitados</p>
-        </div>
-
-        <div className={`flex items-center gap-3 px-8 py-3 rounded-full border ${marketType === 'OTC' ? 'border-[#ffb800]/30 bg-[#ffb800]/5 text-[#ffb800]' : 'border-[#00c076]/30 bg-[#00c076]/5 text-[#00c076]'} text-[10px] font-black uppercase tracking-widest shadow-2xl backdrop-blur-sm`}>
-          <div className="flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${marketType === 'OTC' ? 'bg-[#ffb800]' : 'bg-[#00c076]'} animate-pulse`}></span>
-            <span>Mercado {marketType}</span>
+    <div className="min-h-screen bg-[#080a0c] text-white p-0 md:p-8 font-sans">
+      <div className="p-4 md:p-0">
+        <div className="flex flex-col items-center mb-10 space-y-4">
+          <div className="text-center">
+            <h1 className="text-4xl font-black uppercase tracking-tighter text-white drop-shadow-md">Ultra Teste</h1>
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.4em] mt-1">sinais limitados</p>
           </div>
-          <div className="w-[1px] h-3 bg-white/10 mx-1"></div>
-          <span className="opacity-80">
-            {marketType === 'REAL' && isWeekend ? 'FECHADO AOS FINAIS DE SEMANA' : 'STATUS: OPERACIONAL'}
-          </span>
-        </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-4 h-fit">
-          <Sidebar 
-            marketType={marketType}
-            setMarketType={setMarketType}
-            timeframe={timeframe}
-            setTimeframe={setTimeframe}
-            assets={availableAssets}
-            selectedAssetId={selectedAssetId}
-            setSelectedAssetId={setSelectedAssetId}
-            isWeekend={isWeekend}
-          />
+          <div className={`flex items-center gap-3 px-8 py-3 rounded-full border ${marketType === 'OTC' ? 'border-[#ffb800]/30 bg-[#ffb800]/5 text-[#ffb800]' : 'border-[#00c076]/30 bg-[#00c076]/5 text-[#00c076]'} text-[10px] font-black uppercase tracking-widest shadow-2xl backdrop-blur-sm`}>
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${marketType === 'OTC' ? 'bg-[#ffb800]' : 'bg-[#00c076]'} animate-pulse`}></span>
+              <span>Mercado {marketType}</span>
+            </div>
+            <div className="w-[1px] h-3 bg-white/10 mx-1"></div>
+            <span className="opacity-80">
+              {marketType === 'REAL' && isWeekend ? 'FECHADO AOS FINAIS DE SEMANA' : 'STATUS: OPERACIONAL'}
+            </span>
+          </div>
         </div>
 
-        <div className="lg:col-span-8">
-          <Dashboard 
-            asset={selectedAsset}
-            signal={currentSignal}
-            probability={probability}
-            timeframe={timeframe}
-            secondsUntilNext={secondsUntilNextCandle}
-            lastCandles={lastCandles}
-          />
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-4 h-fit">
+            <Sidebar 
+              marketType={marketType}
+              setMarketType={setMarketType}
+              timeframe={timeframe}
+              setTimeframe={setTimeframe}
+              assets={availableAssets}
+              selectedAssetId={selectedAssetId}
+              setSelectedAssetId={setSelectedAssetId}
+              isWeekend={isWeekend}
+            />
+          </div>
+
+          <div className="lg:col-span-8">
+            <Dashboard 
+              asset={selectedAsset}
+              signal={currentSignal}
+              probability={probability}
+              timeframe={timeframe}
+              secondsUntilNext={secondsUntilNextCandle}
+              lastCandles={lastCandles}
+            />
+          </div>
         </div>
       </div>
     </div>

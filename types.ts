@@ -2,7 +2,7 @@
 export type MarketType = 'REAL' | 'OTC';
 export type Timeframe = 'M1' | 'M5' | 'M15';
 export type CandleColor = 'GREEN' | 'RED';
-export type SignalType = 'BUY' | 'SELL' | 'WAITING';
+export type SignalType = 'BUY' | 'SELL' | 'WAITING' | 'ANALYZING';
 
 export interface Asset {
   id: string;

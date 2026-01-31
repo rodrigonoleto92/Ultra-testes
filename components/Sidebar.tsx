@@ -26,25 +26,12 @@ const Sidebar: React.FC<SidebarProps> = ({
       <section className="space-y-3">
         <div className="flex justify-between items-center text-[10px] font-black text-gray-500 uppercase tracking-widest">
           <span>1. Modalidade</span>
-          <div className="flex items-center gap-2">
-            <span className="text-[9px] text-gray-500 font-bold">AUTO</span>
-            <div className="w-8 h-4 bg-[#00c076] rounded-full relative shadow-[0_0_8px_rgba(0,192,118,0.2)]">
-              <div className="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full"></div>
-            </div>
-          </div>
         </div>
         <div className="grid grid-cols-2 gap-2 p-1 bg-[#080a0c] rounded-lg border border-gray-800/60">
           <button 
-            className="py-2.5 px-3 rounded-md bg-[#00c076]/10 border border-[#00c076]/30 text-[10px] font-black text-[#00c076] shadow-[inset_0_0_10px_rgba(0,192,118,0.05)] transition-all uppercase"
+            className="py-2.5 px-3 rounded-md bg-[#00c076]/10 border border-[#00c076]/30 text-[10px] font-black text-[#00c076] shadow-[inset_0_0_10px_rgba(0,192,118,0.05)] transition-all uppercase w-full col-span-2"
           >
             BINÁRIAS
-          </button>
-          <button 
-            disabled
-            className="py-2.5 px-3 rounded-md text-[10px] font-black text-gray-700 cursor-not-allowed uppercase flex items-center justify-center gap-1.5"
-          >
-            <span className="opacity-40">CRIPTO</span>
-            <div className="w-1 h-1 bg-gray-800 rounded-full"></div>
           </button>
         </div>
       </section>
