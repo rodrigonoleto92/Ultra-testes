@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { MarketType, Timeframe, Asset } from '../types';
+import EconomicCalendar from './EconomicCalendar';
 
 interface SidebarProps {
   marketType: MarketType;
@@ -72,6 +73,11 @@ const Sidebar: React.FC<SidebarProps> = ({
           ))}
         </div>
       </section>
+
+      <div className="pt-2">
+        <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block mb-2">Calendário Econômico</label>
+        <EconomicCalendar />
+      </div>
 
       <div className="pt-3 border-t border-white/5 flex justify-between items-center text-[8px] font-bold text-gray-700">
         <span>SNIPER MODE</span>
