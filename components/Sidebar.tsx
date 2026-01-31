@@ -21,90 +21,55 @@ const Sidebar: React.FC<SidebarProps> = ({
   isWeekend
 }) => {
   return (
-    <div className="glass-panel rounded-[1.2rem] p-6 space-y-7 h-full shadow-2xl bg-[#0d1117] border border-gray-800/40">
-      {/* 1. Modalidade */}
-      <section className="space-y-3">
-        <div className="flex justify-between items-center text-[10px] font-black text-gray-500 uppercase tracking-widest">
-          <span>1. Modalidade</span>
-        </div>
-        <div className="grid grid-cols-2 gap-2 p-1 bg-[#080a0c] rounded-lg border border-gray-800/60">
-          <button 
-            className="py-2.5 px-3 rounded-md bg-[#00c076]/10 border border-[#00c076]/30 text-[10px] font-black text-[#00c076] shadow-[inset_0_0_10px_rgba(0,192,118,0.05)] transition-all uppercase w-full col-span-2"
-          >
-            BINÁRIAS
-          </button>
-        </div>
-      </section>
-
-      {/* 2. Ativos */}
-      <section className="space-y-3">
-        <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
-          <span>2. Ativos</span>
-        </div>
-        <div className="grid grid-cols-2 gap-2 p-1 bg-[#080a0c] rounded-lg border border-gray-800/60">
-          <button className="py-2.5 px-3 rounded-md bg-[#1e232d] border border-gray-700/30 text-[10px] font-black text-gray-300">
-            MOEDAS
-          </button>
-          <button disabled className="py-2.5 px-3 rounded-md text-[10px] font-black text-gray-700 cursor-not-allowed opacity-40">
-            OUTROS
-          </button>
-        </div>
-        
-        <div className="relative group">
+    <div className="bg-[#0b0d11] rounded-2xl p-7 border border-white/5 space-y-8 shadow-2xl">
+      <section className="space-y-4">
+        <label className="text-[11px] font-black text-gray-500 uppercase tracking-widest block">Ativo Polarium</label>
+        <div className="relative">
           <select 
             value={selectedAssetId}
             onChange={(e) => setSelectedAssetId(e.target.value)}
-            className="w-full bg-[#080a0c] border border-gray-800 rounded-lg px-4 py-3.5 text-[11px] font-bold appearance-none focus:outline-none focus:border-[#ffb800]/50 transition-all cursor-pointer tracking-wider"
+            className="w-full bg-[#040507] border border-white/5 rounded-xl px-5 py-4 text-xs font-bold appearance-none focus:outline-none focus:border-[#00c076]/30 transition-all text-white"
           >
             {assets.map(asset => (
-              <option key={asset.id} value={asset.id} className="bg-[#080a0c] text-white">
-                {asset.name}
-              </option>
+              <option key={asset.id} value={asset.id}>{asset.name}</option>
             ))}
           </select>
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-600">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7"></path></svg>
+          <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-600">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
           </div>
         </div>
       </section>
 
-      {/* 3. Tipo de Mercado */}
-      <section className="space-y-3">
-        <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
-          <span>3. Tipo de Mercado</span>
-        </div>
-        <div className="grid grid-cols-2 gap-2 p-1 bg-[#080a0c] rounded-lg border border-gray-800/60">
+      <section className="space-y-4">
+        <label className="text-[11px] font-black text-gray-500 uppercase tracking-widest block">Tipo de Mercado</label>
+        <div className="grid grid-cols-2 gap-3 p-1 bg-[#040507] rounded-xl border border-white/5">
           <button 
             onClick={() => setMarketType('REAL')}
             disabled={isWeekend}
-            className={`py-2.5 px-3 rounded-md text-[10px] font-black transition-all relative ${marketType === 'REAL' ? 'bg-[#1e232d] border border-gray-700/30 text-white' : 'text-gray-600 hover:text-gray-400'} ${isWeekend ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`py-3 rounded-lg text-[10px] font-black transition-all ${marketType === 'REAL' ? 'bg-[#1e232d] text-white shadow-lg' : 'text-gray-600 hover:text-gray-400'} ${isWeekend ? 'opacity-20' : ''}`}
           >
-            MERCADO REAL
-            {isWeekend && <span className="absolute -top-1 -right-1 bg-red-500 text-[7px] px-1 rounded text-white border border-red-400">FECHADO</span>}
+            REAL
           </button>
           <button 
             onClick={() => setMarketType('OTC')}
-            className={`py-2.5 px-3 rounded-md text-[10px] font-black transition-all ${marketType === 'OTC' ? 'border border-[#ffb800] bg-[#ffb800]/5 text-[#ffb800]' : 'text-gray-600 hover:text-gray-400'}`}
+            className={`py-3 rounded-lg text-[10px] font-black transition-all ${marketType === 'OTC' ? 'bg-[#ffb800]/10 text-[#ffb800] border border-[#ffb800]/20' : 'text-gray-600 hover:text-gray-400'}`}
           >
-            MERCADO OTC
+            OTC
           </button>
         </div>
       </section>
 
-      {/* Timeframe */}
-      <section className="space-y-3">
-        <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
-          <span>Timeframe</span>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
+      <section className="space-y-4">
+        <label className="text-[11px] font-black text-gray-500 uppercase tracking-widest block">Timeframe</label>
+        <div className="grid grid-cols-3 gap-3">
           {(['M1', 'M5', 'M15'] as Timeframe[]).map((tf) => (
             <button
               key={tf}
               onClick={() => setTimeframe(tf)}
-              className={`py-2.5 rounded-lg text-[10px] font-black border transition-all ${
+              className={`py-4 rounded-xl text-[11px] font-black border transition-all ${
                 timeframe === tf 
-                ? 'bg-white text-black border-white shadow-md' 
-                : 'bg-[#151921] border-gray-800 text-gray-500 hover:border-gray-600'
+                ? 'bg-white text-black border-white shadow-xl' 
+                : 'bg-[#040507] border-white/5 text-gray-600 hover:border-white/10'
               }`}
             >
               {tf}
@@ -113,12 +78,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </section>
 
-      {/* Footer Info */}
-      <div className="pt-6 border-t border-gray-800/40">
-        <div className="bg-[#00c076]/5 border border-[#00c076]/20 rounded-xl py-3 px-4 text-center">
-          <p className="text-[#00c076] text-[9px] font-black tracking-[0.2em] uppercase">
-            SMC SCANNER ATIVO: <span className="font-mono text-[#00ff9d]">00:49</span>
-          </p>
+      <div className="pt-6 border-t border-white/5">
+        <div className="flex items-center justify-between text-[10px] font-bold text-gray-600 uppercase">
+          <span>SMC Scanner</span>
+          <span className="text-[#00c076]">Ativo</span>
         </div>
       </div>
     </div>
