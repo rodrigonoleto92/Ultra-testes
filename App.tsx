@@ -43,6 +43,7 @@ const App: React.FC = () => {
     const prev = candles[candles.length - 2];
     const prevPrev = candles.length >= 3 ? candles[candles.length - 3] : null;
 
+    // Estratégia vela a vela
     if (prevPrev === 'RED' && prev === 'GREEN' && last === 'RED') return 'SELL';
     if (prevPrev === 'GREEN' && prev === 'RED' && last === 'GREEN') return 'BUY';
     if (prev === 'RED' && last === 'RED') return 'SELL';
@@ -58,6 +59,7 @@ const App: React.FC = () => {
       const remaining = timeframeSeconds - (currentSeconds % timeframeSeconds);
       setSecondsUntilNextCandle(remaining);
 
+      // Sinal aparece faltando 15 segundos
       if (remaining <= 15) {
         const signal = calculateSignal(lastCandles);
         setCurrentSignal(signal);
@@ -65,6 +67,7 @@ const App: React.FC = () => {
         setCurrentSignal('WAITING');
       }
 
+      // Nova vela
       if (remaining === timeframeSeconds) {
         const nextColor: CandleColor = Math.random() > 0.45 ? 'GREEN' : 'RED';
         setLastCandles(prev => [...prev.slice(-4), nextColor]);
@@ -79,18 +82,18 @@ const App: React.FC = () => {
       {/* Top Header Section */}
       <div className="flex flex-col items-center mb-10 space-y-4">
         <div className="text-center">
-          <h1 className="text-3xl font-black uppercase tracking-tighter text-white">Ultra testes</h1>
+          <h1 className="text-4xl font-black uppercase tracking-tighter text-white drop-shadow-md">Ultra Teste</h1>
           <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.4em] mt-1">sinais limitados</p>
         </div>
 
-        <div className={`flex items-center gap-3 px-8 py-3 rounded-full border ${marketType === 'OTC' ? 'border-[#ffb800]/30 bg-[#ffb800]/5 text-[#ffb800]' : 'border-[#00c076]/30 bg-[#00c076]/5 text-[#00c076]'} text-[10px] font-black uppercase tracking-widest shadow-2xl`}>
+        <div className={`flex items-center gap-3 px-8 py-3 rounded-full border ${marketType === 'OTC' ? 'border-[#ffb800]/30 bg-[#ffb800]/5 text-[#ffb800]' : 'border-[#00c076]/30 bg-[#00c076]/5 text-[#00c076]'} text-[10px] font-black uppercase tracking-widest shadow-2xl backdrop-blur-sm`}>
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${marketType === 'OTC' ? 'bg-[#ffb800]' : 'bg-[#00c076]'} animate-pulse`}></span>
-            <span>Mercado {marketType} (VIP)</span>
+            <span>Mercado {marketType}</span>
           </div>
           <div className="w-[1px] h-3 bg-white/10 mx-1"></div>
           <span className="opacity-80">
-            {marketType === 'REAL' && isWeekend ? 'FECHADO' : 'ABERTO'}
+            {marketType === 'REAL' && isWeekend ? 'FECHADO AOS FINAIS DE SEMANA' : 'STATUS: OPERACIONAL'}
           </span>
         </div>
       </div>
