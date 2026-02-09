@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { Asset } from './types';
 
 export const ASSETS: Asset[] = [
@@ -16,7 +15,5 @@ export const ASSETS: Asset[] = [
 ];
 
 export const TIMEFRAMES = {
-  M1: 60,
-  M5: 300,
-  M15: 900
+  M1: 60
 };

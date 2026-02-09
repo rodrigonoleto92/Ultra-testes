@@ -15,9 +15,7 @@ const App: React.FC = () => {
   const [timeframe, setTimeframe] = useState<Timeframe>('M1');
   const [selectedAssetId, setSelectedAssetId] = useState<string>(isWeekend ? 'EURUSD_OTC' : 'EURUSD');
   
-  // Histórico de velas simulando o feed da Polarium Broker
   const [lastCandles, setLastCandles] = useState<CandleColor[]>(['RED', 'GREEN', 'RED', 'RED', 'GREEN']);
-  // Simulação da vela em formação (Atual)
   const [currentRunningColor, setCurrentRunningColor] = useState<CandleColor>('RED');
   
   const [currentSignal, setCurrentSignal] = useState<SignalType>('WAITING');
@@ -32,24 +30,15 @@ const App: React.FC = () => {
     return ASSETS.find(a => a.id === selectedAssetId) || ASSETS[0];
   }, [selectedAssetId]);
 
-  /**
-   * ESTRATÉGIA VELA A VELA - POLARIUM SNIPER
-   * 1. Baixa (R) + Alta (G) + Baixa (R) = VENDA (S)
-   * 2. Alta (G) + Baixa (R) + Alta (G) = COMPRA (B)
-   * 3. Duas de Baixa (R, R) = VENDA (S)
-   * 4. Duas de Alta (G, G) = COMPRA (B)
-   */
   const calculateSignal = useCallback((history: CandleColor[], current: CandleColor) => {
     if (history.length < 2) return 'WAITING';
     
-    const last = history[history.length - 1]; // Vela fechada anterior
-    const prev = history[history.length - 2]; // Vela fechada antes da anterior
+    const last = history[history.length - 1]; 
+    const prev = history[history.length - 2]; 
 
-    // Regras de Duas Velas (Prioridade de Fluxo/Tendência)
     if (last === 'RED' && current === 'RED') return 'SELL';
     if (last === 'GREEN' && current === 'GREEN') return 'BUY';
 
-    // Regras de Três Velas (Sanduíche/Reversão)
     if (prev === 'RED' && last === 'GREEN' && current === 'RED') return 'SELL';
     if (prev === 'GREEN' && last === 'RED' && current === 'GREEN') return 'BUY';
     
@@ -65,12 +54,10 @@ const App: React.FC = () => {
       
       setSecondsUntilNextCandle(remaining);
 
-      // Simulação de oscilação da vela atual para demonstração visual do "feed"
       if (remaining > 15 && remaining % 4 === 0) {
         setCurrentRunningColor(prev => Math.random() > 0.4 ? prev : (prev === 'RED' ? 'GREEN' : 'RED'));
       }
 
-      // GATILHO: Exatamente nos 15 segundos finais conforme solicitado
       if (remaining <= 15 && remaining > 0) {
         const signal = calculateSignal(lastCandles, currentRunningColor);
         setCurrentSignal(signal);
@@ -80,11 +67,9 @@ const App: React.FC = () => {
         setCurrentSignal('WAITING');
       }
 
-      // Fechamento e rotação de velas
       if (remaining === timeframeSeconds) {
         setLastCandles(prev => [...prev.slice(-10), currentRunningColor]);
         setProbability(Math.floor(Math.random() * (98 - 93 + 1) + 93));
-        // Próxima vela inicia baseada na probabilidade de seguir a anterior (simulando mercado real)
         setCurrentRunningColor(Math.random() > 0.3 ? currentRunningColor : (currentRunningColor === 'RED' ? 'GREEN' : 'RED'));
       }
     }, 1000);
@@ -92,19 +77,50 @@ const App: React.FC = () => {
   }, [timeframe, lastCandles, currentRunningColor, calculateSignal]);
 
   return (
-    <div className="min-h-screen bg-[#06080a] text-white p-4 md:p-6 font-sans flex flex-col items-center justify-center">
-      <div className="w-full max-w-4xl">
-        <header className="flex flex-col items-center mb-6">
-          <h1 className="text-3xl font-black uppercase tracking-tighter text-white">
-            Ultra <span className="text-[#00c076]">Teste</span>
-          </h1>
-          <div className="flex items-center gap-2 mt-1 px-3 py-1 bg-white/5 rounded-full border border-white/5">
+    <div className="min-h-screen bg-[#080a0c] text-white p-4 md:p-6 font-sans flex flex-col items-center">
+      <div className="w-full max-w-4xl py-8">
+        <header className="flex flex-col items-center mb-10">
+          <div className="flex items-center gap-4">
+            {/* Logo Vetorial Nítido reconstruído fielmente à imagem */}
+            <svg 
+              width="65" 
+              height="65" 
+              viewBox="0 0 100 100" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+              shapeRendering="geometricPrecision"
+            >
+              <defs>
+                <linearGradient id="ultraGrad" x1="0" y1="0" x2="100" y2="100">
+                  <stop offset="0%" stopColor="#87efac" />
+                  <stop offset="100%" stopColor="#60a5fa" />
+                </linearGradient>
+              </defs>
+              <path d="M10 44 L50 24 L90 44" stroke="url(#ultraGrad)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M15 44 H85" stroke="url(#ultraGrad)" strokeWidth="5" strokeLinecap="round" />
+              <rect x="23" y="52" width="6" height="26" fill="url(#ultraGrad)" rx="1" />
+              <rect x="37" y="52" width="6" height="26" fill="url(#ultraGrad)" rx="1" />
+              <rect x="51" y="52" width="6" height="26" fill="url(#ultraGrad)" rx="1" />
+              <path d="M10 84 H60" stroke="url(#ultraGrad)" strokeWidth="6" strokeLinecap="round" />
+              <g transform="translate(64, 46)">
+                <path d="M16 10 C8 10 8 20 16 20 C24 20 24 30 16 30 C8 30 8 30 8 30" stroke="url(#ultraGrad)" strokeWidth="7" strokeLinecap="round" fill="none" />
+                <line x1="16" y1="4" x2="16" y2="36" stroke="url(#ultraGrad)" strokeWidth="5" strokeLinecap="round" />
+              </g>
+            </svg>
+
+            <div className="flex flex-col -space-y-1.5">
+              <span className="text-[52px] font-black tracking-tighter text-white leading-none uppercase">Ultra</span>
+              <span className="text-[42px] font-light tracking-tight text-white/90 leading-none lowercase">trade</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 mt-6 px-4 py-1.5 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00c076] animate-pulse"></span>
-            <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-[#00c076]">Polarium Broker Feed: Ativo</span>
+            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#00c076]">Operacional de Binárias</span>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-4 h-fit">
             <Sidebar 
               marketType={marketType}
@@ -118,7 +134,7 @@ const App: React.FC = () => {
             />
           </div>
 
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-8 flex flex-col gap-6">
             <Dashboard 
               asset={selectedAsset}
               signal={currentSignal}
@@ -126,6 +142,32 @@ const App: React.FC = () => {
               timeframe={timeframe}
               secondsUntilNext={secondsUntilNextCandle}
             />
+
+            {/* CTA PREMIUM SECTION */}
+            <div className="bg-gradient-to-r from-[#0b0d11] to-[#151a24] rounded-2xl p-6 border border-white/5 shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#00c076]/5 blur-3xl rounded-full -mr-10 -mt-10 group-hover:bg-[#00c076]/10 transition-colors"></div>
+              
+              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className="text-lg font-black text-white mb-1 uppercase tracking-tight">Evolua para o Próximo Nível</h3>
+                  <p className="text-gray-400 text-sm font-medium">
+                    Adquira o <span className="text-[#00c076] font-bold">Ultra trade premium</span> com muitas outras funcionalidades exclusivas.
+                  </p>
+                </div>
+                
+                <a 
+                  href="https://wa.me/5563981170612" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-[#00c076] hover:bg-[#00d884] text-[#080a0c] px-8 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-[0_10px_20px_-10px_rgba(0,192,118,0.5)] transition-all hover:scale-105 active:scale-95 flex items-center gap-2 whitespace-nowrap"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.67-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 0 5.414 0 12.05c0 2.123.553 4.197 1.603 6.034L0 24l6.135-1.61a11.787 11.787 0 005.912 1.57h.005c6.637 0 12.05-5.414 12.05-12.05a11.791 11.791 0 00-3.51-8.514z"/>
+                  </svg>
+                  Quero Ser Premium
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>

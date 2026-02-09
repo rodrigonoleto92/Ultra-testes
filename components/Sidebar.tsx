@@ -16,7 +16,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({
   marketType, setMarketType,
-  timeframe, setTimeframe,
+  timeframe,
   assets,
   selectedAssetId, setSelectedAssetId,
   isWeekend
@@ -58,21 +58,9 @@ const Sidebar: React.FC<SidebarProps> = ({
       </section>
 
       <section className="space-y-1.5">
-        <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block">Timeframe</label>
-        <div className="grid grid-cols-3 gap-1.5">
-          {(['M1', 'M5', 'M15'] as Timeframe[]).map((tf) => (
-            <button
-              key={tf}
-              onClick={() => setTimeframe(tf)}
-              className={`py-2 rounded-lg text-[10px] font-black border transition-all ${
-                timeframe === tf 
-                ? 'bg-white text-black border-white shadow-md' 
-                : 'bg-[#040507] border-white/5 text-gray-600 hover:border-white/10'
-              }`}
-            >
-              {tf}
-            </button>
-          ))}
+        <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block">Timeframe Ativo</label>
+        <div className="bg-[#040507] border border-white/5 py-2 px-3 rounded-lg text-center">
+          <span className="text-[11px] font-black text-white">{timeframe} (1 Minuto)</span>
         </div>
       </section>
 
@@ -87,11 +75,10 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       <div className="pt-3 border-t border-white/5 flex justify-between items-center text-[8px] font-bold text-gray-700">
-        <span>POLARIUM ENGINE</span>
+        <span>ULTRA TESTE ENGINE</span>
         <span>v3.0</span>
       </div>
 
-      {/* Modal de Notícias */}
       {isNewsOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-[#0b0d11] w-full max-w-lg rounded-2xl border border-white/10 shadow-2xl flex flex-col max-h-[90vh]">

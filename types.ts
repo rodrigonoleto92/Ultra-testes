@@ -1,6 +1,6 @@
 
 export type MarketType = 'REAL' | 'OTC';
-export type Timeframe = 'M1' | 'M5' | 'M15';
+export type Timeframe = 'M1'; // Somente M1 disponível
 export type CandleColor = 'GREEN' | 'RED';
 export type SignalType = 'BUY' | 'SELL' | 'WAITING' | 'ANALYZING';
 

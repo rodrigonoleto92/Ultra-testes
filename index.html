@@ -4,11 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultra Teste - Trader Sniper</title>
+    <title>Ultra trade - Binary Signals</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
-      // Shim para evitar erro de "process is not defined" em navegadores
       window.process = window.process || { env: { API_KEY: "" } };
     </script>
     <style>
@@ -19,20 +18,13 @@
             margin: 0;
             overflow-x: hidden;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .glass-panel {
             background: rgba(21, 25, 33, 0.8);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .buy-gradient {
-            background: linear-gradient(135deg, #00c076 0%, #008f58 100%);
-        }
-        .sell-gradient {
-            background: linear-gradient(135deg, #ff3b3b 0%, #c41e1e 100%);
-        }
-        .otc-glow {
-            box-shadow: 0 0 15px rgba(255, 184, 0, 0.2);
         }
         @keyframes pulse-custom {
           0%, 100% { opacity: 1; transform: scale(1); }
@@ -41,11 +33,15 @@
         .animate-pulse-custom {
           animation: pulse-custom 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
-        /* Garantir visibilidade do root */
         #root {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+        }
+        /* Ajuste para nitidez de bordas e renderização vetorial */
+        svg {
+          shape-rendering: geometricPrecision;
+          text-rendering: optimizeLegibility;
         }
     </style>
 <script type="importmap">
