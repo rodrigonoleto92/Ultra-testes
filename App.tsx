@@ -76,9 +76,35 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [timeframe, lastCandles, currentRunningColor, calculateSignal]);
 
+  const WHATSAPP_URL = "https://wa.me/5563981170612";
+
   return (
     <div className="min-h-screen bg-[#080a0c] text-white p-4 md:p-6 font-sans flex flex-col items-center">
-      <div className="w-full max-w-4xl py-8">
+      <div className="w-full max-w-4xl pt-4">
+        
+        {/* Aviso de Versão de Testes para Usuário com Botão CTA Superior */}
+        <div className="w-full mb-8 bg-[#00c076]/5 border border-[#00c076]/20 rounded-2xl p-4 md:p-5 text-center backdrop-blur-md shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
+           <div className="flex flex-col md:flex-row items-center gap-3 text-left">
+             <div className="bg-[#00c076]/20 p-2 rounded-full hidden md:block">
+                <svg className="w-5 h-5 text-[#00c076]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+             </div>
+             <div className="text-center md:text-left">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#00c076] mb-0.5">Acesso de Teste Liberado</p>
+                <p className="text-white text-[12px] font-medium leading-tight">A IA está lendo o gráfico em tempo real. Para acesso total e operacional ilimitado, assine a versão Pro.</p>
+             </div>
+           </div>
+           
+           <a 
+              href={WHATSAPP_URL} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="bg-[#00c076] hover:bg-[#00d884] text-[#080a0c] px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_5px_15px_-5px_rgba(0,192,118,0.4)] transition-all hover:scale-105 active:scale-95 flex items-center gap-2 shrink-0"
+            >
+              Assinar Versão Pro
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </a>
+        </div>
+
         <header className="flex flex-col items-center mb-10">
           <div className="flex items-center gap-4">
             {/* Logo Vetorial Nítido reconstruído fielmente à imagem */}
@@ -156,7 +182,7 @@ const App: React.FC = () => {
                 </div>
                 
                 <a 
-                  href="https://wa.me/5563981170612" 
+                  href={WHATSAPP_URL} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="bg-[#00c076] hover:bg-[#00d884] text-[#080a0c] px-8 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-[0_10px_20px_-10px_rgba(0,192,118,0.5)] transition-all hover:scale-105 active:scale-95 flex items-center gap-2 whitespace-nowrap"
