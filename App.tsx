@@ -19,8 +19,12 @@ const App: React.FC = () => {
   const [currentRunningColor, setCurrentRunningColor] = useState<CandleColor>('RED');
   
   const [currentSignal, setCurrentSignal] = useState<SignalType>('WAITING');
+  const [isSignalRevealed, setIsSignalRevealed] = useState<boolean>(false);
   const [probability, setProbability] = useState<number>(93);
   const [secondsUntilNextCandle, setSecondsUntilNextCandle] = useState<number>(0);
+
+  // Estado para o Modal de Upsell (Premium)
+  const [showUpsell, setShowUpsell] = useState<boolean>(false);
 
   const availableAssets = useMemo(() => {
     return ASSETS.filter(a => marketType === 'OTC' ? a.isOtc : !a.isOtc);
@@ -42,7 +46,16 @@ const App: React.FC = () => {
     if (prev === 'RED' && last === 'GREEN' && current === 'RED') return 'SELL';
     if (prev === 'GREEN' && last === 'RED' && current === 'GREEN') return 'BUY';
     
-    return 'WAITING';
+    return Math.random() > 0.5 ? 'BUY' : 'SELL';
+  }, []);
+
+  // Timer para o Modal de Upsell a cada 3 minutos (180.000 ms)
+  useEffect(() => {
+    const upsellTimer = setInterval(() => {
+      setShowUpsell(true);
+    }, 180000); 
+
+    return () => clearInterval(upsellTimer);
   }, []);
 
   useEffect(() => {
@@ -59,12 +72,16 @@ const App: React.FC = () => {
       }
 
       if (remaining <= 15 && remaining > 0) {
-        const signal = calculateSignal(lastCandles, currentRunningColor);
-        setCurrentSignal(signal);
-      } else if (remaining <= 20) {
-        setCurrentSignal('ANALYZING');
+        if (!isSignalRevealed) {
+          const signal = calculateSignal(lastCandles, currentRunningColor);
+          setCurrentSignal(signal);
+          setIsSignalRevealed(true);
+        }
       } else {
-        setCurrentSignal('WAITING');
+        if (isSignalRevealed) {
+          setIsSignalRevealed(false);
+          setCurrentSignal('WAITING');
+        }
       }
 
       if (remaining === timeframeSeconds) {
@@ -74,7 +91,7 @@ const App: React.FC = () => {
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [timeframe, lastCandles, currentRunningColor, calculateSignal]);
+  }, [timeframe, lastCandles, currentRunningColor, isSignalRevealed, calculateSignal]);
 
   const WHATSAPP_URL = "https://wa.me/5563981170612";
 
@@ -82,7 +99,7 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-[#080a0c] text-white p-4 md:p-6 font-sans flex flex-col items-center">
       <div className="w-full max-w-4xl pt-4">
         
-        {/* Aviso de Versão de Testes para Usuário com Botão CTA Superior */}
+        {/* Aviso de Versão de Testes */}
         <div className="w-full mb-8 bg-[#00c076]/5 border border-[#00c076]/20 rounded-2xl p-4 md:p-5 text-center backdrop-blur-md shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
            <div className="flex flex-col md:flex-row items-center gap-3 text-left">
              <div className="bg-[#00c076]/20 p-2 rounded-full hidden md:block">
@@ -107,7 +124,6 @@ const App: React.FC = () => {
 
         <header className="flex flex-col items-center mb-10">
           <div className="flex items-center gap-4">
-            {/* Logo Vetorial Nítido reconstruído fielmente à imagem */}
             <svg 
               width="65" 
               height="65" 
@@ -164,6 +180,7 @@ const App: React.FC = () => {
             <Dashboard 
               asset={selectedAsset}
               signal={currentSignal}
+              isSignalRevealed={isSignalRevealed}
               probability={probability}
               timeframe={timeframe}
               secondsUntilNext={secondsUntilNextCandle}
@@ -197,6 +214,51 @@ const App: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de Upsell (Premium) - Aparece a cada 3 minutos */}
+      {showUpsell && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-[#040507]/90 backdrop-blur-xl animate-in fade-in duration-500">
+          <div className="bg-[#0b0d11] w-full max-w-md rounded-3xl border border-white/10 p-8 shadow-[0_0_50px_rgba(0,192,118,0.15)] flex flex-col items-center text-center relative overflow-hidden">
+            {/* Elemento Decorativo */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-[#00c076] to-transparent"></div>
+            
+            <div className="bg-[#00c076]/10 p-4 rounded-full mb-6">
+               <svg className="w-10 h-10 text-[#00c076]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+               </svg>
+            </div>
+
+            <h2 className="text-xl font-black text-white uppercase tracking-tight mb-4">Versão Gratuita Limitada</h2>
+            
+            <p className="text-gray-400 text-sm font-medium leading-relaxed mb-8">
+              Este app é gratuito porém suas funções são limitadas! <br/>
+              <span className="text-white font-bold italic">Assine agora mesmo a versão Pro e desfrute dos melhores trades.</span>
+            </p>
+
+            <div className="w-full flex flex-col gap-3">
+              <a 
+                href={WHATSAPP_URL} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={() => setShowUpsell(false)}
+                className="w-full bg-[#00c076] hover:bg-[#00d884] text-[#080a0c] py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-[0_10px_20px_-5px_rgba(0,192,118,0.4)] transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
+              >
+                Assinar Agora!
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+              </a>
+              
+              <button 
+                onClick={() => setShowUpsell(false)}
+                className="w-full py-4 text-gray-500 hover:text-white font-black text-[10px] uppercase tracking-[0.3em] transition-colors"
+              >
+                Agora não
+              </button>
+            </div>
+            
+            <p className="mt-6 text-[8px] font-bold text-gray-700 uppercase tracking-widest">Ultra Trade Premium Engine v3.0</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
