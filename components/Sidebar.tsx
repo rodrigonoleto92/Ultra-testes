@@ -22,9 +22,28 @@ const Sidebar: React.FC<SidebarProps> = ({
   isWeekend
 }) => {
   const [isNewsOpen, setIsNewsOpen] = useState(false);
+  const BROKER_URL = "https://trade.polariumbroker.com/register?aff=756030&aff_model=revenue&afftrack=";
 
   return (
-    <div className="bg-[#0b0d11] rounded-xl p-4 border border-white/5 space-y-4 shadow-xl relative">
+    <div className="bg-[#0b0d11] rounded-xl p-4 border border-white/5 space-y-4 shadow-xl relative overflow-hidden">
+      
+      {/* Mini Recomendação de Corretora (Topo do Sidebar) */}
+      <a 
+        href={BROKER_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block bg-gradient-to-r from-[#00c076]/10 to-transparent border border-[#00c076]/20 p-3 rounded-lg hover:bg-[#00c076]/20 transition-all group"
+      >
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#00c076] animate-pulse"></div>
+          <span className="text-[8px] font-black text-[#00c076] uppercase tracking-[0.2em]">Corretora Indicada</span>
+        </div>
+        <p className="text-white text-[10px] font-bold group-hover:text-white transition-colors">
+          Opere na <span className="text-[#00c076]">Polarium Broker</span> 
+          <svg className="w-3 h-3 inline ml-1 align-text-top" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </p>
+      </a>
+
       <section className="space-y-1.5">
         <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block">Ativo</label>
         <select 

@@ -94,6 +94,7 @@ const App: React.FC = () => {
   }, [timeframe, lastCandles, currentRunningColor, isSignalRevealed, calculateSignal]);
 
   const WHATSAPP_URL = "https://wa.me/5563981170612";
+  const BROKER_URL = "https://trade.polariumbroker.com/register?aff=756030&aff_model=revenue&afftrack=";
 
   return (
     <div className="min-h-screen bg-[#080a0c] text-white p-4 md:p-6 font-sans flex flex-col items-center">
@@ -211,6 +212,17 @@ const App: React.FC = () => {
                 </a>
               </div>
             </div>
+
+            {/* Botão de Corretora Indicada (Baixo) - Versão Compacta */}
+            <a 
+              href={BROKER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-white/5 hover:bg-[#00c076]/20 border border-white/5 py-4 rounded-xl text-center transition-all group"
+            >
+              <p className="text-[7px] text-gray-600 font-black uppercase tracking-[0.3em] mb-1 group-hover:text-[#00c076]">Indicação de confiança</p>
+              <p className="text-[10px] text-white font-bold">Abra conta na <span className="text-[#00c076]">Polarium Broker</span> agora!</p>
+            </a>
           </div>
         </div>
       </div>
