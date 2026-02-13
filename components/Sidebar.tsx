@@ -13,13 +13,15 @@ interface SidebarProps {
   setSelectedAssetId: (id: string) => void;
   isWeekend: boolean;
   isScanning: boolean;
+  isOperatingTime: boolean;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
   marketType,
   timeframe,
   selectedAssetId,
-  isScanning
+  isScanning,
+  isOperatingTime
 }) => {
   const [isNewsOpen, setIsNewsOpen] = useState(false);
   const BROKER_URL = "https://trade.polariumbroker.com/register?aff=756030&aff_model=revenue&afftrack=";
@@ -35,7 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         className="block bg-gradient-to-r from-[#00c076]/10 to-transparent border border-[#00c076]/20 p-3 rounded-lg hover:bg-[#00c076]/20 transition-all group"
       >
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#00c076] animate-pulse"></div>
+          <div className={`w-1.5 h-1.5 rounded-full ${isOperatingTime ? 'bg-[#00c076] animate-pulse' : 'bg-gray-500'}`}></div>
           <span className="text-[8px] font-black text-[#00c076] uppercase tracking-[0.2em]">Corretora Indicada</span>
         </div>
         <p className="text-white text-[10px] font-bold group-hover:text-white transition-colors">
@@ -44,32 +46,34 @@ const Sidebar: React.FC<SidebarProps> = ({
         </p>
       </a>
 
-      {/* Status da IA e Ativo Atual (Visual apenas) */}
+      {/* Status da IA e Ativo Atual */}
       <section className="space-y-1.5">
-        <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block">Varredura de Mercado</label>
+        <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block">Status da IA</label>
         <div className="bg-[#040507] border border-white/5 rounded-lg p-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-black text-white">{selectedAssetId.replace('_OTC', ' (OTC)')}</span>
-            <span className={`text-[7px] font-black px-1.5 py-0.5 rounded-full ${isScanning ? 'bg-blue-500/10 text-blue-400' : 'bg-[#00c076]/10 text-[#00c076]'}`}>
-              {isScanning ? 'ANALISANDO' : 'FIXADO'}
+            <span className="text-[10px] font-black text-white">
+              {isOperatingTime ? selectedAssetId.replace('_OTC', ' (OTC)') : 'MODO STANDBY'}
+            </span>
+            <span className={`text-[7px] font-black px-1.5 py-0.5 rounded-full ${isScanning ? 'bg-blue-500/10 text-blue-400' : isOperatingTime ? 'bg-[#00c076]/10 text-[#00c076]' : 'bg-red-500/10 text-red-400'}`}>
+              {isScanning ? 'ANALISANDO' : isOperatingTime ? 'FIXADO' : 'OFFLINE'}
             </span>
           </div>
           <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-            <div className={`h-full bg-[#00c076] transition-all duration-300 ${isScanning ? 'w-1/2 animate-pulse' : 'w-full'}`}></div>
+            <div className={`h-full transition-all duration-300 ${isScanning ? 'bg-[#00c076] w-1/2 animate-pulse' : isOperatingTime ? 'bg-[#00c076] w-full' : 'bg-red-500 w-full opacity-30'}`}></div>
           </div>
         </div>
       </section>
 
       <section className="space-y-1.5">
-        <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block">Configurações Fixas</label>
+        <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block">Configurações Atuais</label>
         <div className="space-y-2">
            <div className="bg-[#040507] border border-white/5 py-2 px-3 rounded-lg flex justify-between items-center">
-             <span className="text-[8px] font-black text-gray-500 uppercase">Período</span>
-             <span className="text-[10px] font-black text-white">{timeframe} (1m)</span>
+             <span className="text-[8px] font-black text-gray-500 uppercase">Mercado</span>
+             <span className="text-[10px] font-black text-white">{marketType}</span>
            </div>
            <div className="bg-[#040507] border border-white/5 py-2 px-3 rounded-lg flex justify-between items-center">
-             <span className="text-[8px] font-black text-gray-500 uppercase">Estratégia</span>
-             <span className="text-[10px] font-black text-[#00c076]">Sniper v3</span>
+             <span className="text-[8px] font-black text-gray-500 uppercase">Período</span>
+             <span className="text-[10px] font-black text-white">{timeframe}</span>
            </div>
         </div>
       </section>

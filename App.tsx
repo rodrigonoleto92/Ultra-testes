@@ -6,12 +6,25 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 
 const App: React.FC = () => {
+  const [now, setNow] = useState(new Date());
+  
   const isWeekend = useMemo(() => {
-    const day = new Date().getDay();
-    return day === 0 || day === 6;
-  }, []);
+    const day = now.getDay();
+    return day === 0 || day === 6; // 0 = Domingo, 6 = Sábado
+  }, [now]);
 
-  const [marketType, setMarketType] = useState<MarketType>(isWeekend ? 'OTC' : 'REAL');
+  // Lógica de Horários: 09:00-09:30, 14:00-14:30, 20:00-20:30
+  const isOperatingTime = useMemo(() => {
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    
+    const morning = hours === 9 && minutes < 30;
+    const afternoon = hours === 14 && minutes < 30;
+    const night = hours === 20 && minutes < 30;
+    
+    return morning || afternoon || night;
+  }, [now]);
+
   const [timeframe] = useState<Timeframe>('M1');
   const [selectedAssetId, setSelectedAssetId] = useState<string>(ASSETS[0].id);
   
@@ -23,8 +36,13 @@ const App: React.FC = () => {
   const [probability, setProbability] = useState<number>(93);
   const [secondsUntilNextCandle, setSecondsUntilNextCandle] = useState<number>(0);
 
-  // Estado para o Modal de Upsell (Premium)
   const [showUpsell, setShowUpsell] = useState<boolean>(false);
+
+  // Filtra ativos permitidos baseando-se no dia (FDS só OTC)
+  const allowedAssets = useMemo(() => {
+    if (isWeekend) return ASSETS.filter(a => a.isOtc);
+    return ASSETS;
+  }, [isWeekend]);
 
   const selectedAsset = useMemo(() => {
     return ASSETS.find(a => a.id === selectedAssetId) || ASSETS[0];
@@ -43,7 +61,6 @@ const App: React.FC = () => {
     return Math.random() > 0.5 ? 'BUY' : 'SELL';
   }, []);
 
-  // Timer para o Modal de Upsell a cada 3 minutos
   useEffect(() => {
     const upsellTimer = setInterval(() => {
       setShowUpsell(true);
@@ -53,43 +70,46 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const now = new Date();
+      const currentTime = new Date();
+      setNow(currentTime);
+      
       const timeframeSeconds = TIMEFRAMES[timeframe];
-      const currentSeconds = now.getSeconds() + (now.getMinutes() * 60) + (now.getHours() * 3600);
+      const currentSeconds = currentTime.getSeconds() + (currentTime.getMinutes() * 60) + (currentTime.getHours() * 3600);
       const remaining = timeframeSeconds - (currentSeconds % timeframeSeconds);
       
       setSecondsUntilNextCandle(remaining);
 
-      // LÓGICA DE VARREDURA DA IA
-      if (remaining > 15) {
-        // Durante os primeiros 45 segundos, a IA "varre" os ativos
-        if (remaining % 3 === 0) {
-          const randomIndex = Math.floor(Math.random() * ASSETS.length);
-          setSelectedAssetId(ASSETS[randomIndex].id);
+      // SÓ PROCESSA SINAL SE ESTIVER NO HORÁRIO
+      if (isOperatingTime) {
+        if (remaining > 15) {
+          if (remaining % 3 === 0) {
+            const randomIndex = Math.floor(Math.random() * allowedAssets.length);
+            setSelectedAssetId(allowedAssets[randomIndex].id);
+          }
+          
+          if (isSignalRevealed) {
+            setIsSignalRevealed(false);
+            setCurrentSignal('WAITING');
+          }
+
+          if (remaining % 4 === 0) {
+            setCurrentRunningColor(prev => Math.random() > 0.4 ? prev : (prev === 'RED' ? 'GREEN' : 'RED'));
+          }
+        } else if (remaining <= 15 && remaining > 0) {
+          if (!isSignalRevealed) {
+            const signal = calculateSignal(lastCandles, currentRunningColor);
+            setCurrentSignal(signal);
+            setIsSignalRevealed(true);
+          }
         }
-        
+      } else {
+        // Fora de horário, limpa sinais ativos
         if (isSignalRevealed) {
           setIsSignalRevealed(false);
           setCurrentSignal('WAITING');
         }
-
-        // Simulação de movimento da vela (apenas visual)
-        if (remaining % 4 === 0) {
-          setCurrentRunningColor(prev => Math.random() > 0.4 ? prev : (prev === 'RED' ? 'GREEN' : 'RED'));
-        }
-      } else if (remaining <= 15 && remaining > 0) {
-        // Nos 15 segundos finais, a IA "trava" em um ativo e gera o sinal
-        if (!isSignalRevealed) {
-          // Escolhe um ativo aleatório para "travar" o sinal se ainda não estiver revelado
-          // Em um app real aqui haveria a lógica de qual ativo tem o melhor padrão
-          const signal = calculateSignal(lastCandles, currentRunningColor);
-          setCurrentSignal(signal);
-          setIsSignalRevealed(true);
-          // O assetId já estará fixado no que estava no momento do sweep final
-        }
       }
 
-      // Reset de vela e histórico ao final do minuto
       if (remaining === timeframeSeconds) {
         setLastCandles(prev => [...prev.slice(-10), currentRunningColor]);
         setProbability(Math.floor(Math.random() * (98 - 93 + 1) + 93));
@@ -97,7 +117,7 @@ const App: React.FC = () => {
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [timeframe, lastCandles, currentRunningColor, isSignalRevealed, calculateSignal]);
+  }, [timeframe, lastCandles, currentRunningColor, isSignalRevealed, calculateSignal, isOperatingTime, allowedAssets]);
 
   const WHATSAPP_URL = "https://wa.me/5563981170612";
   const BROKER_URL = "https://trade.polariumbroker.com/register?aff=756030&aff_model=revenue&afftrack=";
@@ -106,7 +126,6 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-[#080a0c] text-white p-4 md:p-6 font-sans flex flex-col items-center">
       <div className="w-full max-w-4xl pt-4">
         
-        {/* Aviso de Versão de Testes */}
         <div className="w-full mb-8 bg-[#00c076]/5 border border-[#00c076]/20 rounded-2xl p-4 md:p-5 text-center backdrop-blur-md shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
            <div className="flex flex-col md:flex-row items-center gap-3 text-left">
              <div className="bg-[#00c076]/20 p-2 rounded-full hidden md:block">
@@ -114,7 +133,7 @@ const App: React.FC = () => {
              </div>
              <div className="text-center md:text-left">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#00c076] mb-0.5">Acesso de Teste Liberado</p>
-                <p className="text-white text-[12px] font-medium leading-tight">A IA está lendo o gráfico em tempo real. Para acesso total e operacional ilimitado, assine a versão Pro.</p>
+                <p className="text-white text-[12px] font-medium leading-tight">A IA está em varredura limitada. Para sinais 24h por dia e muitas outras funções, assine a versão Pro.</p>
              </div>
            </div>
            
@@ -164,23 +183,26 @@ const App: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-2 mt-6 px-4 py-1.5 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00c076] animate-pulse"></span>
-            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#00c076]">IA em varredura global</span>
+            <span className={`w-1.5 h-1.5 rounded-full ${isOperatingTime ? 'bg-[#00c076] animate-pulse' : 'bg-red-500'}`}></span>
+            <span className={`text-[9px] font-black uppercase tracking-[0.3em] ${isOperatingTime ? 'text-[#00c076]' : 'text-red-500'}`}>
+              {isOperatingTime ? 'IA em varredura global' : 'IA em modo de espera'}
+            </span>
           </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-4 h-fit">
             <Sidebar 
-              marketType={marketType}
-              setMarketType={setMarketType}
+              marketType={isWeekend ? 'OTC' : 'REAL'}
+              setMarketType={() => {}} 
               timeframe={timeframe}
-              setTimeframe={() => {}} // Bloqueado em M1
-              assets={ASSETS}
+              setTimeframe={() => {}} 
+              assets={allowedAssets}
               selectedAssetId={selectedAssetId}
-              setSelectedAssetId={() => {}} // Bloqueado, IA escolhe
+              setSelectedAssetId={() => {}} 
               isWeekend={isWeekend}
-              isScanning={!isSignalRevealed}
+              isScanning={!isSignalRevealed && isOperatingTime}
+              isOperatingTime={isOperatingTime}
             />
           </div>
 
@@ -192,17 +214,17 @@ const App: React.FC = () => {
               probability={probability}
               timeframe={timeframe}
               secondsUntilNext={secondsUntilNextCandle}
+              isOperatingTime={isOperatingTime}
             />
 
-            {/* CTA PREMIUM SECTION */}
             <div className="bg-gradient-to-r from-[#0b0d11] to-[#151a24] rounded-2xl p-6 border border-white/5 shadow-2xl relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#00c076]/5 blur-3xl rounded-full -mr-10 -mt-10 group-hover:bg-[#00c076]/10 transition-colors"></div>
               
               <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex-1 text-center md:text-left">
-                  <h3 className="text-lg font-black text-white mb-1 uppercase tracking-tight">Evolua para o Próximo Nível</h3>
-                  <p className="text-gray-400 text-sm font-medium">
-                    Adquira o <span className="text-[#00c076] font-bold">Ultra trade premium</span> com muitas outras funcionalidades exclusivas.
+                  <h3 className="text-lg font-black text-white mb-1 uppercase tracking-tight">Versão Premium 24h</h3>
+                  <p className="text-gray-400 text-sm font-medium leading-snug">
+                    A versão Pro gera <span className="text-[#00c076] font-bold">sinais 24h por dia</span> e conta com muitas outras funcionalidades exclusivas para sua evolução.
                   </p>
                 </div>
                 
@@ -215,12 +237,11 @@ const App: React.FC = () => {
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.67-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 0 5.414 0 12.05c0 2.123.553 4.197 1.603 6.034L0 24l6.135-1.61a11.787 11.787 0 005.912 1.57h.005c6.637 0 12.05-5.414 12.05-12.05a11.791 11.791 0 00-3.51-8.514z"/>
                   </svg>
-                  Quero Ser Premium
+                  Quero Sinais 24h
                 </a>
               </div>
             </div>
 
-            {/* Botão de Corretora Indicada (Baixo) - Versão Compacta */}
             <a 
               href={BROKER_URL}
               target="_blank"
@@ -234,7 +255,6 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal de Upsell (Premium) - Aparece a cada 3 minutos */}
       {showUpsell && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-[#040507]/90 backdrop-blur-xl animate-in fade-in duration-500">
           <div className="bg-[#0b0d11] w-full max-w-md rounded-3xl border border-white/10 p-8 shadow-[0_0_50px_rgba(0,192,118,0.15)] flex flex-col items-center text-center relative overflow-hidden">
@@ -244,10 +264,10 @@ const App: React.FC = () => {
                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                </svg>
             </div>
-            <h2 className="text-xl font-black text-white uppercase tracking-tight mb-4">Versão Gratuita Limitada</h2>
+            <h2 className="text-xl font-black text-white uppercase tracking-tight mb-4">Versão Pro 24h Ativa</h2>
             <p className="text-gray-400 text-sm font-medium leading-relaxed mb-8">
-              Este app é gratuito porém suas funções são limitadas! <br/>
-              <span className="text-white font-bold italic">Assine agora mesmo a versão Pro e desfrute dos melhores trades.</span>
+              A versão gratuita possui horários limitados. <br/>
+              <span className="text-white font-bold italic">A versão Premium gera sinais 24h por dia e oferece muitas outras funcionalidades para você nunca perder uma oportunidade.</span>
             </p>
             <div className="w-full flex flex-col gap-3">
               <a 
@@ -257,7 +277,7 @@ const App: React.FC = () => {
                 onClick={() => setShowUpsell(false)}
                 className="w-full bg-[#00c076] hover:bg-[#00d884] text-[#080a0c] py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-[0_10px_20px_-5px_rgba(0,192,118,0.4)] transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
               >
-                Assinar Agora!
+                Ativar Sinais 24h!
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
               </a>
               <button 
