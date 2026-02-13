@@ -12,8 +12,8 @@ const App: React.FC = () => {
   }, []);
 
   const [marketType, setMarketType] = useState<MarketType>(isWeekend ? 'OTC' : 'REAL');
-  const [timeframe, setTimeframe] = useState<Timeframe>('M1');
-  const [selectedAssetId, setSelectedAssetId] = useState<string>(isWeekend ? 'EURUSD_OTC' : 'EURUSD');
+  const [timeframe] = useState<Timeframe>('M1');
+  const [selectedAssetId, setSelectedAssetId] = useState<string>(ASSETS[0].id);
   
   const [lastCandles, setLastCandles] = useState<CandleColor[]>(['RED', 'GREEN', 'RED', 'RED', 'GREEN']);
   const [currentRunningColor, setCurrentRunningColor] = useState<CandleColor>('RED');
@@ -26,35 +26,28 @@ const App: React.FC = () => {
   // Estado para o Modal de Upsell (Premium)
   const [showUpsell, setShowUpsell] = useState<boolean>(false);
 
-  const availableAssets = useMemo(() => {
-    return ASSETS.filter(a => marketType === 'OTC' ? a.isOtc : !a.isOtc);
-  }, [marketType]);
-
   const selectedAsset = useMemo(() => {
     return ASSETS.find(a => a.id === selectedAssetId) || ASSETS[0];
   }, [selectedAssetId]);
 
   const calculateSignal = useCallback((history: CandleColor[], current: CandleColor) => {
     if (history.length < 2) return 'WAITING';
-    
     const last = history[history.length - 1]; 
     const prev = history[history.length - 2]; 
 
     if (last === 'RED' && current === 'RED') return 'SELL';
     if (last === 'GREEN' && current === 'GREEN') return 'BUY';
-
     if (prev === 'RED' && last === 'GREEN' && current === 'RED') return 'SELL';
     if (prev === 'GREEN' && last === 'RED' && current === 'GREEN') return 'BUY';
     
     return Math.random() > 0.5 ? 'BUY' : 'SELL';
   }, []);
 
-  // Timer para o Modal de Upsell a cada 3 minutos (180.000 ms)
+  // Timer para o Modal de Upsell a cada 3 minutos
   useEffect(() => {
     const upsellTimer = setInterval(() => {
       setShowUpsell(true);
     }, 180000); 
-
     return () => clearInterval(upsellTimer);
   }, []);
 
@@ -67,23 +60,36 @@ const App: React.FC = () => {
       
       setSecondsUntilNextCandle(remaining);
 
-      if (remaining > 15 && remaining % 4 === 0) {
-        setCurrentRunningColor(prev => Math.random() > 0.4 ? prev : (prev === 'RED' ? 'GREEN' : 'RED'));
-      }
-
-      if (remaining <= 15 && remaining > 0) {
-        if (!isSignalRevealed) {
-          const signal = calculateSignal(lastCandles, currentRunningColor);
-          setCurrentSignal(signal);
-          setIsSignalRevealed(true);
+      // LÓGICA DE VARREDURA DA IA
+      if (remaining > 15) {
+        // Durante os primeiros 45 segundos, a IA "varre" os ativos
+        if (remaining % 3 === 0) {
+          const randomIndex = Math.floor(Math.random() * ASSETS.length);
+          setSelectedAssetId(ASSETS[randomIndex].id);
         }
-      } else {
+        
         if (isSignalRevealed) {
           setIsSignalRevealed(false);
           setCurrentSignal('WAITING');
         }
+
+        // Simulação de movimento da vela (apenas visual)
+        if (remaining % 4 === 0) {
+          setCurrentRunningColor(prev => Math.random() > 0.4 ? prev : (prev === 'RED' ? 'GREEN' : 'RED'));
+        }
+      } else if (remaining <= 15 && remaining > 0) {
+        // Nos 15 segundos finais, a IA "trava" em um ativo e gera o sinal
+        if (!isSignalRevealed) {
+          // Escolhe um ativo aleatório para "travar" o sinal se ainda não estiver revelado
+          // Em um app real aqui haveria a lógica de qual ativo tem o melhor padrão
+          const signal = calculateSignal(lastCandles, currentRunningColor);
+          setCurrentSignal(signal);
+          setIsSignalRevealed(true);
+          // O assetId já estará fixado no que estava no momento do sweep final
+        }
       }
 
+      // Reset de vela e histórico ao final do minuto
       if (remaining === timeframeSeconds) {
         setLastCandles(prev => [...prev.slice(-10), currentRunningColor]);
         setProbability(Math.floor(Math.random() * (98 - 93 + 1) + 93));
@@ -159,7 +165,7 @@ const App: React.FC = () => {
           
           <div className="flex items-center gap-2 mt-6 px-4 py-1.5 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00c076] animate-pulse"></span>
-            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#00c076]">Operacional de Binárias</span>
+            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#00c076]">IA em varredura global</span>
           </div>
         </header>
 
@@ -169,11 +175,12 @@ const App: React.FC = () => {
               marketType={marketType}
               setMarketType={setMarketType}
               timeframe={timeframe}
-              setTimeframe={setTimeframe}
-              assets={availableAssets}
+              setTimeframe={() => {}} // Bloqueado em M1
+              assets={ASSETS}
               selectedAssetId={selectedAssetId}
-              setSelectedAssetId={setSelectedAssetId}
+              setSelectedAssetId={() => {}} // Bloqueado, IA escolhe
               isWeekend={isWeekend}
+              isScanning={!isSignalRevealed}
             />
           </div>
 
@@ -231,22 +238,17 @@ const App: React.FC = () => {
       {showUpsell && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-[#040507]/90 backdrop-blur-xl animate-in fade-in duration-500">
           <div className="bg-[#0b0d11] w-full max-w-md rounded-3xl border border-white/10 p-8 shadow-[0_0_50px_rgba(0,192,118,0.15)] flex flex-col items-center text-center relative overflow-hidden">
-            {/* Elemento Decorativo */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-[#00c076] to-transparent"></div>
-            
             <div className="bg-[#00c076]/10 p-4 rounded-full mb-6">
                <svg className="w-10 h-10 text-[#00c076]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                </svg>
             </div>
-
             <h2 className="text-xl font-black text-white uppercase tracking-tight mb-4">Versão Gratuita Limitada</h2>
-            
             <p className="text-gray-400 text-sm font-medium leading-relaxed mb-8">
               Este app é gratuito porém suas funções são limitadas! <br/>
               <span className="text-white font-bold italic">Assine agora mesmo a versão Pro e desfrute dos melhores trades.</span>
             </p>
-
             <div className="w-full flex flex-col gap-3">
               <a 
                 href={WHATSAPP_URL} 
@@ -258,7 +260,6 @@ const App: React.FC = () => {
                 Assinar Agora!
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
               </a>
-              
               <button 
                 onClick={() => setShowUpsell(false)}
                 className="w-full py-4 text-gray-500 hover:text-white font-black text-[10px] uppercase tracking-[0.3em] transition-colors"
@@ -266,7 +267,6 @@ const App: React.FC = () => {
                 Agora não
               </button>
             </div>
-            
             <p className="mt-6 text-[8px] font-bold text-gray-700 uppercase tracking-widest">Ultra Trade Premium Engine v3.0</p>
           </div>
         </div>
