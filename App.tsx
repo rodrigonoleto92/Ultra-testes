@@ -26,76 +26,72 @@ const Logo: React.FC<{ className?: string, iconOnly?: boolean }> = ({ className 
     {!iconOnly && (
       <div className="flex flex-col -space-y-1">
         <span className="text-2xl md:text-3xl font-black tracking-tighter text-white leading-none uppercase italic">Ultra</span>
-        <span className="text-xl md:text-2xl font-light tracking-normal text-white/90 leading-none lowercase">trade</span>
+        <span className="text-xl md:text-2xl font-light tracking-normal text-white/90 leading-none lowercase">Teste</span>
       </div>
     )}
   </div>
 );
 
-const Candle: React.FC<{ x: number, y: number, h: number, up?: boolean, opacity?: number }> = ({ x, y, h, up, opacity = 0.3 }) => (
+const Candle: React.FC<{ x: number, y: number, h: number, up?: boolean, opacity?: number }> = ({ x, y, h, up, opacity = 0.4 }) => (
   <g opacity={opacity}>
-    <line x1={x + 3} y1={y - 12} x2={x + 3} y2={y + h + 12} stroke={up ? "#00c076" : "#ff3b3b"} strokeWidth="1.5" />
+    <line x1={x + 3.5} y1={y - 15} x2={x + 3.5} y2={y + h + 15} stroke={up ? "#00c076" : "#ff3b3b"} strokeWidth="1.5" />
     <rect x={x} y={y} width="7" height={h} fill={up ? "#00c076" : "#ff3b3b"} rx="1.5" />
   </g>
 );
 
 const ChartBackground: React.FC = () => (
   <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10 select-none bg-[#080a0c]">
-    {/* Camada de Gradiente Base */}
-    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#00c076]/5 to-transparent"></div>
+    {/* Camada de Gradiente Base Profunda */}
+    <div className="absolute inset-0 bg-gradient-to-b from-[#080a0c] via-[#080a0c]/80 to-[#080a0c]"></div>
 
-    {/* Bloco de Gráfico Esquerdo Superior */}
-    <div className="absolute -top-10 -left-10 w-[600px] h-[400px] opacity-30 blur-[4px] transform -rotate-12">
-      <svg viewBox="0 0 200 150" className="w-full h-full">
-        <Candle x={10} y={80} h={20} up={true} />
-        <Candle x={20} y={70} h={30} up={true} />
-        <Candle x={30} y={50} h={40} up={true} />
-        <Candle x={40} y={60} h={20} up={false} />
-        <Candle x={50} y={40} h={50} up={true} />
-        <Candle x={60} y={30} h={30} up={true} />
-        <Candle x={70} y={45} h={15} up={false} />
-        <Candle x={80} y={55} h={25} up={false} />
-        <Candle x={90} y={40} h={35} up={true} />
-        <Candle x={100} y={20} h={40} up={true} />
-        <path d="M10 90 Q 50 40, 100 30" stroke="#00c076" strokeWidth="1" fill="none" opacity="0.3" />
+    {/* Bloco de Gráfico Superior Esquerdo - Mais Visível */}
+    <div className="absolute top-[5%] -left-[5%] w-[800px] h-[400px] opacity-40 blur-[3px] transform -rotate-12">
+      <svg viewBox="0 0 400 200" className="w-full h-full">
+        <Candle x={20} y={120} h={30} up={true} />
+        <Candle x={40} y={100} h={45} up={true} />
+        <Candle x={60} y={110} h={20} up={false} />
+        <Candle x={80} y={90} h={60} up={true} />
+        <Candle x={100} y={70} h={40} up={true} />
+        <Candle x={120} y={85} h={25} up={false} />
+        <Candle x={140} y={95} h={15} up={false} />
+        <Candle x={160} y={70} h={50} up={true} />
+        <Candle x={180} y={50} h={40} up={true} />
+        <path d="M20 135 L 80 100 L 140 105 L 180 60" stroke="#00c076" strokeWidth="1" fill="none" opacity="0.4" />
       </svg>
     </div>
 
-    {/* Bloco de Gráfico Central Direito */}
-    <div className="absolute top-[30%] -right-20 w-[800px] h-[500px] opacity-20 blur-[6px] transform rotate-6">
-      <svg viewBox="0 0 200 150" className="w-full h-full">
-        <Candle x={120} y={100} h={25} up={false} />
-        <Candle x={130} y={115} h={15} up={false} />
-        <Candle x={140} y={90} h={40} up={true} />
-        <Candle x={150} y={80} h={30} up={true} />
-        <Candle x={160} y={60} h={50} up={true} />
-        <Candle x={170} y={75} h={20} up={false} />
-        <Candle x={180} y={65} h={35} up={true} />
-        <Candle x={190} y={50} h={45} up={true} />
+    {/* Bloco de Gráfico Inferior Direito - Grande e Representativo */}
+    <div className="absolute bottom-[10%] -right-[10%] w-[1000px] h-[500px] opacity-35 blur-[5px] transform rotate-6">
+      <svg viewBox="0 0 400 200" className="w-full h-full">
+        <Candle x={250} y={120} h={35} up={false} />
+        <Candle x={270} y={145} h={25} up={false} />
+        <Candle x={290} y={110} h={60} up={true} />
+        <Candle x={310} y={90} h={45} up={true} />
+        <Candle x={330} y={60} h={70} up={true} />
+        <Candle x={350} y={85} h={30} up={false} />
+        <Candle x={370} y={70} h={50} up={true} />
+        <Candle x={390} y={40} h={65} up={true} />
       </svg>
     </div>
 
-    {/* Bloco de Gráfico Inferior Esquerdo */}
-    <div className="absolute -bottom-20 left-[10%] w-[700px] h-[500px] opacity-25 blur-[5px] transform rotate-3">
-      <svg viewBox="0 0 200 150" className="w-full h-full">
-        <Candle x={20} y={120} h={15} up={true} />
-        <Candle x={30} y={110} h={25} up={true} />
-        <Candle x={40} y={90} h={40} up={true} />
-        <Candle x={50} y={105} h={20} up={false} />
-        <Candle x={60} y={115} h={15} up={false} />
-        <Candle x={70} y={95} h={30} up={true} />
-        <Candle x={80} y={75} h={45} up={true} />
-        <Candle x={90} y={90} h={20} up={false} />
-        <Candle x={100} y={70} h={35} up={true} />
+    {/* Bloco Central de Preenchimento */}
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[600px] opacity-10 blur-[8px]">
+      <svg viewBox="0 0 500 200" className="w-full h-full">
+        <Candle x={100} y={100} h={15} up={true} />
+        <Candle x={120} y={90} h={25} up={true} />
+        <Candle x={140} y={110} h={20} up={false} />
+        <Candle x={160} y={120} h={30} up={false} />
+        <Candle x={180} y={95} h={40} up={true} />
+        <Candle x={200} y={75} h={20} up={true} />
       </svg>
     </div>
 
-    {/* Luzes de Fundo (Glow) */}
-    <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#00c076]/10 blur-[150px] rounded-full animate-pulse"></div>
-    <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-[#60a5fa]/10 blur-[180px] rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
+    {/* Brilhos Coloridos Atmosféricos */}
+    <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-[#00c076]/10 blur-[180px] rounded-full"></div>
+    <div className="absolute bottom-1/4 right-1/4 w-[700px] h-[700px] bg-[#60a5fa]/10 blur-[200px] rounded-full"></div>
 
-    {/* Linhas de Grade Ofuscadas */}
-    <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '50px 50px' }}></div>
+    {/* Grid de Fundo Trader */}
+    <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '60px 60px' }}></div>
   </div>
 );
 
@@ -126,7 +122,6 @@ const App: React.FC = () => {
         "IA Sniper v3.0",
         "Leituras Vela a Vela",
         "Mercado Real & OTC",
-        "Acesso ao Grupo VIP",
         "Suporte Prioritário"
       ],
       highlight: false,
@@ -142,7 +137,7 @@ const App: React.FC = () => {
         "Leituras Vela a Vela",
         "Mercado Real & OTC",
         "Setup Exclusivo",
-        "Acesso Vitalício (12 meses)",
+        "Acesso 12 meses",
         "Suporte Individualizado"
       ],
       highlight: true,
@@ -155,7 +150,7 @@ const App: React.FC = () => {
       <ChartBackground />
 
       {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 bg-[#080a0c]/90 backdrop-blur-lg border-b border-white/5 px-6 py-4">
+      <nav className="fixed top-0 w-full z-50 bg-[#080a0c]/90 backdrop-blur-xl border-b border-white/5 px-6 py-4">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <Logo />
           <div className="hidden md:flex gap-8 text-[10px] font-black uppercase tracking-widest text-gray-400">
@@ -200,7 +195,7 @@ const App: React.FC = () => {
               <div className="w-3 h-3 rounded-full bg-yellow-500/20"></div>
               <div className="w-3 h-3 rounded-full bg-[#00c076]/20"></div>
             </div>
-            <div className="text-[10px] font-black text-gray-700 tracking-[0.3em] uppercase">Ultra Trade AI Console</div>
+            <div className="text-[10px] font-black text-gray-700 tracking-[0.3em] uppercase">Ultra Teste AI Console</div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-left">
             <div className="bg-[#040507]/80 rounded-3xl p-8 border border-white/5 flex flex-col items-center justify-center relative overflow-hidden">
@@ -225,8 +220,8 @@ const App: React.FC = () => {
       {/* Funcionalidades */}
       <section id="funcionalidades" className="py-24 px-6 max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-black mb-4 uppercase tracking-tighter">Por que a <span className="text-[#00c076]">Ultra Trade</span>?</h2>
-          <p className="text-gray-400 font-medium">A única ferramenta focada 100% em assertividade vela-a-vela.</p>
+          <h2 className="text-3xl md:text-5xl font-black mb-4 uppercase tracking-tighter">Por que a <span className="text-[#00c076]">Ultra Teste</span>?</h2>
+          <p className="text-gray-400 font-medium italic">A única ferramenta focada 100% em assertividade vela-a-vela.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -263,7 +258,7 @@ const App: React.FC = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-6xl font-black mb-6 uppercase tracking-tighter">Planos <span className="text-[#00c076]">Disponíveis</span></h2>
-            <p className="text-gray-400 font-medium max-w-xl mx-auto">Ative sua licença agora e comece a lucrar em minutos.</p>
+            <p className="text-gray-400 font-medium max-w-xl mx-auto italic">Escolha o melhor plano para o seu gerenciamento e comece agora.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
@@ -271,7 +266,7 @@ const App: React.FC = () => {
               <div 
                 key={i} 
                 className={`relative bg-[#0b0d11]/90 backdrop-blur-2xl p-10 rounded-[45px] border transition-all hover:scale-[1.02] duration-500 flex flex-col ${
-                  plan.highlight ? 'border-[#00c076] shadow-[0_0_80px_rgba(0,192,118,0.2)] z-10 py-16' : 'border-white/10'
+                  plan.highlight ? 'border-[#00c076] shadow-[0_0_80px_rgba(0,192,118,0.2)] z-10 py-16' : 'border-white/10 opacity-95'
                 }`}
               >
                 {plan.highlight && (
@@ -321,20 +316,20 @@ const App: React.FC = () => {
       <footer className="py-32 px-6 text-center bg-[#080a0c]/95 backdrop-blur-md relative z-10 border-t border-white/5">
         <div className="max-w-4xl mx-auto">
           <Logo className="justify-center mb-12" />
-          <h2 className="text-4xl md:text-6xl font-black mb-10 uppercase tracking-tighter leading-tight">Não perca mais tempo. <br/> <span className="text-[#00c076]">Lucre com a IA.</span></h2>
+          <h2 className="text-4xl md:text-6xl font-black mb-10 uppercase tracking-tighter leading-tight">Mude seu jogo hoje. <br/> <span className="text-[#00c076]">Lucre com a Ultra Teste.</span></h2>
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="inline-block bg-white text-black px-16 py-7 rounded-[30px] font-black text-sm uppercase tracking-[0.3em] hover:bg-[#00c076] hover:text-[#080a0c] transition-all transform hover:-translate-y-2">
             Adquirir Acesso Agora
           </a>
           
           <div className="mt-32 flex flex-col md:flex-row justify-between items-center gap-10 opacity-50">
-            <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.4em]">© 2024 Ultra Trade Pro v3.0</p>
+            <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.4em]">© 2024 Ultra Teste Pro v3.0</p>
             <div className="flex gap-4">
               <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 border border-white/20 rounded-md">SSL Secured</span>
               <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 border border-white/20 rounded-md">Safe Payment</span>
             </div>
           </div>
           <p className="mt-16 text-[9px] text-gray-700 uppercase tracking-widest leading-relaxed max-w-2xl mx-auto italic">
-            O mercado financeiro envolve riscos. Opere sempre com cautela e gerenciamento. Suporte Oficial WhatsApp: 63 98117-0612.
+            O mercado de opções binárias envolve riscos ao seu capital. Use a ferramenta como auxílio na sua tomada de decisão. Suporte Oficial: 63 98117-0612.
           </p>
         </div>
       </footer>
