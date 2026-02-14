@@ -88,13 +88,9 @@ const Sidebar: React.FC<SidebarProps> = ({
         </button>
       </div>
 
-      <div className="pt-3 border-t border-white/5 flex justify-between items-center text-[8px] font-bold text-gray-700">
+      <div className="pt-3 border-t border-white/5 flex justify-between items-center text-[8px] font-bold text-gray-700 uppercase tracking-widest">
         <div className="flex items-center gap-1">
-          <svg viewBox="0 0 100 100" className="w-3 h-3">
-            <path d="M15 42L50 25L85 42" stroke="#00c076" strokeWidth="8" fill="none" />
-            <path d="M15 82H65" stroke="#00c076" strokeWidth="10" />
-          </svg>
-          <span>ULTRA TESTE ENGINE</span>
+          <span className="text-[#00c076]">Ultra</span> trade
         </div>
         <span>v3.0</span>
       </div>
